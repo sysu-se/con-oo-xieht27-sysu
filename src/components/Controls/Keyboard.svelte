@@ -21,7 +21,19 @@
 					candidates.clear($cursor);
 				}
 
-				userGrid.set($cursor, num);
+				// Record the move in domain game for undo/redo support
+				const game = userGrid.getGame();
+				if (game) {
+					game.guess({ row: $cursor.y, col: $cursor.x, value: num });
+					// Sync domain game state to userGrid
+					const grid = game.getSudoku().getGrid();
+					userGrid.update($userGrid => {
+						$userGrid[$cursor.y][$cursor.x] = num;
+						return $userGrid;
+					});
+				} else {
+					userGrid.set($cursor, num);
+				}
 			}
 		}
 	}
